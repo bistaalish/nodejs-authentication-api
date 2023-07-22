@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const config = require("./config/config");
 const authRoutes = require("./routes/authRoutes");
+const cors = require("cors"); // Import the cors middleware
 
 const app = express();
 
@@ -22,8 +23,14 @@ mongoose
   // Parse incoming JSON data
 app.use(express.json());
 
+// Read the allowed origins from the .env file
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+// Use the cors middleware to allow requests from the specified origins
+app.use(cors({ origin: allowedOrigins }));
+
+
 // Set up routes
-app.use("/auth", authRoutes); // All auth-related routes will be prefixed with '/auth'
+app.use("/api/auth", authRoutes); // All auth-related routes will be prefixed with '/auth'
 // Other configurations and middleware...
 
 // Start the server
