@@ -1,0 +1,24 @@
+{
+  "name": "nodejs-authentication-api",
+  "version": "1.0.0",
+  "description": " A Node.js Authentication and Authorization API",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/bistaalish/nodejs-authentication-api.git"
+  },
+  "keywords": [
+    "Node.js",
+    "Authentication",
+    "Authorization"
+  ],
+  "author": "Alish Bista",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bistaalish/nodejs-authentication-api/issues"
+  },
+  "homepage": "https://github.com/bistaalish/nodejs-authentication-api#readme"
+}
