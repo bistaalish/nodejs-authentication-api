@@ -1,8 +1,9 @@
-// app.js or 
+// app.js or server.js
 
 const express = require("express");
 const mongoose = require("mongoose");
 const config = require("./config/config");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -18,6 +19,11 @@ mongoose
     process.exit(1);
   });
 
+  // Parse incoming JSON data
+app.use(express.json());
+
+// Set up routes
+app.use("/auth", authRoutes); // All auth-related routes will be prefixed with '/auth'
 // Other configurations and middleware...
 
 // Start the server
