@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const config = require("./config/config");
 const authRoutes = require("./routes/authRoutes");
+const authMiddleware = require('./middleware/authMiddleware');
 const cors = require("cors"); // Import the cors middleware
 
 const app = express();
@@ -32,6 +33,12 @@ app.use(cors({ origin: allowedOrigins }));
 // Set up routes
 app.use("/auth", authRoutes); // All auth-related routes will be prefixed with '/auth'
 // Other configurations and middleware...
+// Example of a protected route
+app.get("/protected", authMiddleware.authenticateUser, (req, res) => {
+  // Accessing this route requires a valid token
+  // The authenticated user's information is available in req.user
+  res.json({ status: "success", message: "Protected route accessed", user: req.user });
+});
 
 // Start the server
 const port = process.env.PORT || 3000;
