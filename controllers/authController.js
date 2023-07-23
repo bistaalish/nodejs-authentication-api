@@ -127,3 +127,37 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// Change user password
+exports.changePassword = async (req, res) => {
+  try {
+    // Get the current password and new password from the request body
+    const { currentPassword, newPassword } = req.body;
+    const uname = req.body.username;
+    // Get the authenticated user from the auth middleware
+    const user = await User.findOne({ uname });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired password reset token" });
+    }
+
+
+    // Verify the current password
+    const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Incorrect current password" });
+    }
+
+    // Update the user's password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

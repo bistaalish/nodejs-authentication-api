@@ -16,5 +16,7 @@ router.post("/password-reset", UserController.requestPasswordReset);
 router.post('/password-reset/:token', UserController.resetPassword);
 // Update user profile information
 router.put("/update-profile", authMiddleware.authenticateUser, authController.updateProfile);
+// Change user password
+router.put("/change-password", authMiddleware.authenticateUser, authController.changePassword);
 
 module.exports = router;

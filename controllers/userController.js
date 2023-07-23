@@ -2,7 +2,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const sendEmail = require("../utils/sendEmail");
-const nodemailer = require("nodemailer"); // Import nodemailer library
 const generateVerificationToken = require("../utils/generateToken");
 
 exports.verifyEmail = async (req, res) => {
@@ -95,4 +94,6 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
