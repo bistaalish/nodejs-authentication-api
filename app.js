@@ -30,7 +30,7 @@ app.use(cors({ origin: allowedOrigins }));
 
 
 // Set up routes
-app.use("/api/auth", authRoutes); // All auth-related routes will be prefixed with '/auth'
+app.use("/auth", authRoutes); // All auth-related routes will be prefixed with '/auth'
 // Other configurations and middleware...
 
 // Start the server
