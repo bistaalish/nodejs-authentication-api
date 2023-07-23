@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const config = require("./config/config");
 const authRoutes = require("./routes/authRoutes");
+const verificationRoutes = require("./routes/verificationRoutes");
 const authMiddleware = require('./middleware/authMiddleware');
 const cors = require("cors"); // Import the cors middleware
 
@@ -32,6 +33,7 @@ app.use(cors({ origin: allowedOrigins }));
 
 // Set up routes
 app.use("/auth", authRoutes); // All auth-related routes will be prefixed with '/auth'
+app.use("/auth/verify/",verificationRoutes);
 // Other configurations and middleware...
 // Example of a protected route
 // Example of a protected route

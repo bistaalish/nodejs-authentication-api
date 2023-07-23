@@ -6,7 +6,7 @@ const config = require("../config/config");
 const User = require("../models/user");
 const Joi = require("joi");
 const nodemailer = require("nodemailer"); // Import nodemailer library
-const shortid = require("shortid");
+const generateVerificationToken = require("../utils/generateToken");
 
 // Data validation schema for user registration
 const registrationSchema = Joi.object({
@@ -20,25 +20,16 @@ const loginSchema = Joi.object({
   usernameOrEmail: Joi.string().required(),
   password: Joi.string().required(),
 });
-// Function to generate a random verification token
-function generateVerificationToken() {
-  // Implement your token generation logic here
-  // For example, you can use a library like 'crypto-random-string' to generate a random string
-  // Install the library using npm: 'npm install crypto-random-string'
-  // Then use it to generate a random token:
-  const token = shortid.generate();;
-  return token;
-}
 
 // Function to send the account verification email
-async function sendVerificationEmail(email, token) {
+async function sendVerificationEmail(email, token,user) {
   try {
     var transport = nodemailer.createTransport({
       host: "sandbox.smtp.mailtrap.io",
       port: 2525,
       auth: {
-        user: "49293cfade61f8",
-        pass: "93bc24d13dce3f"
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD
       }
     });
 
@@ -47,7 +38,7 @@ async function sendVerificationEmail(email, token) {
       from: "verification@example.com", // Replace with your email
       to: email,
       subject: "Account Verification",
-      text: `Hello,\n\nPlease verify your account by clicking on the following link:\n\nhttp://localhost:3000/auth/verify/${token}`,
+      html: `<p>Hello ${user},</p><p>Please click on the following link to verify your email:</p><a href=http://localhost:${process.env.PORT}/auth/verify/${token}>${token}</a>`,
     };
 
     // Send the email
@@ -96,7 +87,7 @@ exports.registerUser = async (req, res) => {
 
     await newUser.save();
      // Send the account verification email to the user's registered email address
-     sendVerificationEmail(newUser.email, verificationToken);
+     sendVerificationEmail(newUser.email, verificationToken,newUser.username);
 
      // Return a success response
      res.status(201).json({ status: "success", message: "User registered. Please verify your email." });
