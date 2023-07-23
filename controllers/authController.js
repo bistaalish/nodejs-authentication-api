@@ -15,7 +15,7 @@ const registrationSchema = Joi.object({
 
 // Data validation schema for user login
 const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
+  usernameOrEmail: Joi.string().required(),
   password: Joi.string().required(),
 });
 
@@ -68,10 +68,12 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ status: "error", message: error.details[0].message });
     }
 
-    const { email, password } = req.body;
+    const { usernameOrEmail, password } = req.body;
 
-    // Check if the user exists based on the provided email
-    const user = await User.findOne({ email });
+    // Check if the user exists based on the provided username or email
+    const user = await User.findOne({
+      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+    });
 
     // If the user is not found or the password doesn't match, return an error
     if (!user || !(await bcrypt.compare(password, user.password))) {
