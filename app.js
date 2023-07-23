@@ -34,11 +34,19 @@ app.use(cors({ origin: allowedOrigins }));
 app.use("/auth", authRoutes); // All auth-related routes will be prefixed with '/auth'
 // Other configurations and middleware...
 // Example of a protected route
-app.get("/protected", authMiddleware.authenticateUser, (req, res) => {
+// Example of a protected route
+app.get("/api/profile", authMiddleware.authenticateUser, (req, res) => {
   // Accessing this route requires a valid token
   // The authenticated user's information is available in req.user
-  res.json({ status: "success", message: "Protected route accessed", user: req.user });
+  const userData = {
+    userId: req.user.userId,
+    username: req.user.username,
+    email: req.user.email,
+  };
+
+  res.json({ status: "success", message: "Protected route accessed", user: userData });
 });
+
 
 // Start the server
 const port = process.env.PORT || 3000;
