@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 const User = require("../models/user");
+const sendEmail = require('../utils/sendEmail');
 const Joi = require("joi");
 const nodemailer = require("nodemailer"); // Import nodemailer library
 const generateVerificationToken = require("../utils/generateToken");
@@ -21,40 +22,6 @@ const loginSchema = Joi.object({
   password: Joi.string().required(),
 });
 
-// Function to send the account verification email
-async function sendVerificationEmail(email, token,user) {
-  try {
-    var transport = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD
-      }
-    });
-
-    // Create the email content
-    const mailOptions = {
-      from: "verification@example.com", // Replace with your email
-      to: email,
-      subject: "Account Verification",
-      html: `<p>Hello ${user},</p><p>Please click on the following link to verify your email:</p><a href=http://localhost:${process.env.PORT}/auth/verify/${token}>${token}</a>`,
-    };
-
-    // Send the email
-    await transport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-      } else {
-        console.log("Email sent:", info.response);
-      }
-    });
-
-    console.log("Verification email sent successfully.");
-  } catch (error) {
-    console.error("Error sending verification email:", error.message);
-  }
-}
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
@@ -87,8 +54,10 @@ exports.registerUser = async (req, res) => {
 
     await newUser.save();
      // Send the account verification email to the user's registered email address
-     sendVerificationEmail(newUser.email, verificationToken,newUser.username);
-
+     const subject = "Account Verification";
+     const clientEmail = email;
+     const body =`<p>Hello ${newUser.username},</p><p>Please click on the following link to verify your email:</p><a href=http://localhost:${process.env.PORT}/auth/verify/${verificationToken}>${verificationToken}</a>`
+     sendEmail(subject,clientEmail,body);
      // Return a success response
      res.status(201).json({ status: "success", message: "User registered. Please verify your email." });
    } catch (error) {

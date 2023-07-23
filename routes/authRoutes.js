@@ -9,5 +9,5 @@ const UserController = require("../controllers/userController");
 router.post("/register", authController.registerUser);
 router.post("/login", authController.loginUser);
 router.post("/password-reset", UserController.requestPasswordReset);
-router.post("/reset/", UserController.resetPassword);
+router.post('/password-reset/:token', UserController.resetPassword);
 module.exports = router;
