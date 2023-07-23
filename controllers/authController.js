@@ -6,7 +6,6 @@ const config = require("../config/config");
 const User = require("../models/user");
 const sendEmail = require('../utils/sendEmail');
 const Joi = require("joi");
-const nodemailer = require("nodemailer"); // Import nodemailer library
 const generateVerificationToken = require("../utils/generateToken");
 
 // Data validation schema for user registration
@@ -98,5 +97,33 @@ exports.loginUser = async (req, res) => {
   } catch (error) {
     console.error("Error during login:", error.message);
     res.status(500).json({ status: "error", message: "Internal server error" });
+  }
+};
+
+// Update user profile information
+exports.updateProfile = async (req, res) => {
+  try {
+    // Get the updated profile information from the request body
+    const { username, email, /* other profile fields */ } = req.body;
+    const uname = req.user.username;
+    // Get the authenticated user from the auth middleware
+      // Find the user with the provided verification token
+      const user = await User.findOne({ "username": uname });
+
+      if (!user) {
+        // If the user with the token is not found, handle the error
+        return res.status(404).json({ message: "User not found" });
+      }
+  //   // Update the user's profile information
+    user.username = username;
+    user.email = email;
+    /* Update other profile fields */
+
+    await user.save();
+
+    res.status(200).json({ message: "Profile updated successfully" });
+  } catch (error) {
+    console.error("Error updating profile:", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
