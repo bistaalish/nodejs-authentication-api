@@ -1,11 +1,26 @@
 // controllers/authController.js
 
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const config = require("../config/config");
 const User = require("../models/user");
+const Joi = require("joi");
+
+// Data validation schema for user registration
+const registrationSchema = Joi.object({
+  username: Joi.string().alphanum().min(3).max(30).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).required(),
+});
 
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
+    const { error } = registrationSchema.validate(req.body);
+    if (error) {
+      // If validation fails, return an error response
+      return res.status(400).json({ status: "error", message: error.details[0].message });
+    }
     const { username, email, password } = req.body;
 
     // Check if the username or email already exists in the database
@@ -25,10 +40,15 @@ exports.registerUser = async (req, res) => {
     });
 
     await newUser.save();
+     // Generate a token for the newly registered user
+     const token = jwt.sign({ userId: newUser._id, username: newUser.username }, config.JWT_SECRET, {
+      expiresIn: "1h", // Token expires in 1 hour (adjust as needed)
+    });
 
-    res.status(201).json({ message: "User registered successfully" });
+   // Return the token in the response
+   res.status(201).json({ status: "success", message: "User registered successfully", token });
   } catch (error) {
     console.error("Error registering user:", error.message);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ status: "error", message: "Internal server error" });
   }
 };
