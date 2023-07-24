@@ -68,6 +68,15 @@ exports.registerUser = async (req, res) => {
     });
 
     await newUser.save();
+    // Generate a JWT for the user
+    const tokenPayload = {
+      userId: newUser._id,
+      username: newUser.username,
+      // Add any other relevant user data to the token payload
+    };
+    const token = jwt.sign(tokenPayload, config.JWT_SECRET, { expiresIn: '1h' });
+    // Set the token as a cookie with the 'httpOnly' flag to prevent client-side JavaScript access
+    res.cookie('token', token, { httpOnly: true });
      // Send the account verification email to the user's registered email address
     // Constructing email body
      const subject = "Account Verification";
@@ -114,7 +123,7 @@ exports.loginUser = async (req, res) => {
     const token = jwt.sign({ userId: user._id, username: user.username }, config.JWT_SECRET, {
       expiresIn: "1h", // Token expires in 1 hour (adjust as needed)
     });
-
+    res.cookie('token', token, { httpOnly: true });
     // Return the token in the response
     logger.info(`User login successful: Username - ${user.username}, Email - ${user.email}`);
     res.status(200).json({ status: "success", message: "Login successful", token });

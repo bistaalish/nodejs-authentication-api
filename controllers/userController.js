@@ -29,7 +29,10 @@ exports.getUserProfile = async (req, res) => {
   try {
     // Get the authenticated user from the auth middleware
     const user = req.user;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 58086a2 ( resotored app)
     // Find the user in the database
     const foundUser = await User.findOne({ username: user.username });
 
