@@ -170,13 +170,12 @@ exports.deleteAccount = async (req, res) => {
 
     // Check if the user exists in the database
     const existingUser = await User.findOne({ username: user.username });
-
     if (!existingUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Delete the user's account
-    await User.deleteOne({ _id: user._id });
+    await User.deleteOne({ username: user.username });
 
     res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
