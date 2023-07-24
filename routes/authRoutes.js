@@ -18,5 +18,7 @@ router.post('/password-reset/:token', UserController.resetPassword);
 router.put("/update-profile", authMiddleware.authenticateUser, authController.updateProfile);
 // Change user password
 router.put("/change-password", authMiddleware.authenticateUser, authController.changePassword);
+// Delete user account
+router.delete("/delete-account", authMiddleware.authenticateUser, authController.deleteAccount);
 
 module.exports = router;

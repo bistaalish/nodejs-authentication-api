@@ -161,3 +161,19 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// Delete user account
+exports.deleteAccount = async (req, res) => {
+  try {
+    // Get the authenticated user from the auth middleware
+    const user = req.user.username;
+
+    // Delete the user's account
+    await User.deleteOne({ username: user });
+
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting account:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
