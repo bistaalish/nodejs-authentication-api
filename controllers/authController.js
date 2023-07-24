@@ -20,6 +20,16 @@ const loginSchema = Joi.object({
   usernameOrEmail: Joi.string().required(),
   password: Joi.string().required(),
 });
+const changePasswordRegistrationSchema = Joi.object({
+  currentPassword: Joi.string().min(8).required(),
+  newPassword: Joi.string().min(8).required(),
+});
+
+const updateProfileSchema = Joi.object({
+  username: Joi.string().alphanum().min(3).max(30).required(),
+  email: Joi.string().email().required(),
+});
+
 
 // Register a new user
 exports.registerUser = async (req, res) => {
@@ -103,6 +113,11 @@ exports.loginUser = async (req, res) => {
 // Update user profile information
 exports.updateProfile = async (req, res) => {
   try {
+    const { error } = updateProfileSchema.validate(req.body);
+    if (error) {
+      // If validation fails, return an error response
+      return res.status(400).json({ status: "error", message: error.details[0].message });
+    }
     // Get the updated profile information from the request body
     const { username, email, /* other profile fields */ } = req.body;
     const uname = req.user.username;
@@ -131,6 +146,11 @@ exports.updateProfile = async (req, res) => {
 // Change user password
 exports.changePassword = async (req, res) => {
   try {
+    const { error } = changePasswordRegistrationSchema.validate(req.body);
+    if (error) {
+      // If validation fails, return an error response
+      return res.status(400).json({ status: "error", message: error.details[0].message });
+    }
     // Get the current password and new password from the request body
     const { currentPassword, newPassword } = req.body;
     const uname = req.body.username;

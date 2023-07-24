@@ -1,9 +1,21 @@
 // controllers/userController.js
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const Joi = require("joi");
 const sendEmail = require("../utils/sendEmail");
 const generateVerificationToken = require("../utils/generateToken");
 
+// Datavalidation Schema for Email only
+const emailValidationSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+const PasswordValidationSchema = Joi.object({
+  password: Joi.string().min(8).max(32),
+})
+
+
+// Email Verification by Sending Verification Link
 exports.verifyEmail = async (req, res) => {
   const token = req.params.token;
 
@@ -38,6 +50,11 @@ exports.requestPasswordReset = async (req, res) => {
   const { email } = req.body;
 
   try {
+    const { error } = emailValidationSchema.validate(req.body);
+    if (error) {
+      // If validation fails, return an error response
+      return res.status(400).json({ status: "error", message: error.details[0].message });
+    }
     // Find the user with the provided email
     const user = await User.findOne({ email });
 
@@ -73,6 +90,11 @@ exports.resetPassword = async (req, res) => {
   const { password } = req.body;
 
   try {
+    const { error } = PasswordValidationSchema.validate(req.body);
+    if (error) {
+      // If validation fails, return an error response
+      return res.status(400).json({ status: "error", message: error.details[0].message });
+    }
     // Find the user with the provided password reset token
     const user = await User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } });
 
