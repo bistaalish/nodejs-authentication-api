@@ -126,7 +126,7 @@ exports.loginUser = async (req, res) => {
     res.cookie('token', token, { httpOnly: true });
     // Return the token in the response
     logger.info(`User login successful: Username - ${user.username}, Email - ${user.email}`);
-    res.status(200).json({ status: "success", message: "Login successful", token });
+    res.status(200).json({ status: "success", message: "Login successful" });
   } catch (error) {
     logger.error("Error during login:", error.message);
     console.error("Error during login:", error.message);
