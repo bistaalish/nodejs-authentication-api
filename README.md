@@ -120,13 +120,37 @@ npm start
 
 Once the server is running, you can access the API endpoints using HTTP client tools like [cURL](https://curl.se/) or [Postman](https://www.postman.com/). Below are some of the API endpoints you can interact with:
 
-- `POST /api/register`: Register a new user by providing an email and password.
-- `POST /api/login`: Log in with an existing user account using email and password.
-- `GET /api/logout`: Log out the currently logged-in user.
-- `POST /api/password-reset`: Request a password reset link by providing the registered email address.
-- `GET /api/password-reset/:token`: Verify the password reset token and allow the user to set a new password.
-- `GET /api/dashboard`: Access the user dashboard (requires authentication).
+- `POST /users/register`: Register a new user by providing an email and password.
+```bash
+Data Required:
+{
+  "username": "john_doe",
+  "email": "john.doe@example.com",
+  "password": "Password!123",
+  "phoneNumber": "9807999753",
+  "fullName": "John Doe",
+  "dateOfBirth": "1990-01-01"
+}
 
+```
+- `POST /users/login`: Log in with an existing user account using email and password.
+```bash
+Data Required:
+{
+    "password": "Password!123",
+    "usernameOrEmail" : "john_doe"
+}
+```
+- `GET /users/logout`: Log out the currently logged-in user.
+- `POST /users/password-reset`: Request a password reset link by providing the registered email address.
+```bash
+   {
+      email: test@example.com
+   }
+```
+- `GET /users/password-reset/:token`: Verify the password reset token and allow the user to set a new password.
+- `GET /users/profile/`: Access the user dashboard (requires authentication).
+- `PUT /users/update-profile`: Update the profile (requires Authentication) DATA: 
 For detailed information on each endpoint, including request and response examples, refer to the API documentation.
 
 ## Documentation
