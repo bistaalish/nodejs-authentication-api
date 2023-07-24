@@ -12,7 +12,8 @@ const morgan = require("morgan"); // Import the morgan middleware
 const logger = require("./utils/logger"); // Import the logger we created in the previous step
 const cookieParser = require("cookie-parser"); // Import the cookie-parser middleware
 const rateLimit = require("express-rate-limit");
-
+var cookieSession = require('cookie-session')
+const helmet = require("helmet");
 
 const app = express();
 // Apply rate limiting middleware to all requests
@@ -31,6 +32,8 @@ mongoose
     console.error("Error connecting to MongoDB:", err.message);
     process.exit(1);
   });
+  // Use the helmet middleware for built-in security features, including CSRF protection
+  app.use(helmet());
 
   // Parse incoming JSON data
 app.use(express.json());
@@ -40,16 +43,26 @@ app.use(limiter);
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 // Use the cors middleware to allow requests from the specified origins
 app.use(cors({ origin: allowedOrigins }));
+app.use(cookieSession({
+  name: 'session',
+  keys: [config.COOKIE_SECRET],
 
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 // Log HTTP requests using morgan
 app.use(morgan("combined", { stream: { write: (message) => logger.info(message) } }));
+// Apply CSRF protection middleware to the whole application
+// app.use(csrf({ cookie: true }));
+// Enable CSRF protection
 // Set up routes
+// Apply CSRF protection middleware to the whole application
 app.use("/users", authRoutes); // All auth-related routes will be prefixed with '/auth'
 app.use("/users/verify/",verificationRoutes);
 // Other configurations and middleware...
 
 // Example of a protected route
-app.use("/users/profile", protectedRouted); // All auth-related routes will be prefixed with '/auth'
+app.use("/users/profile",protectedRouted); // All auth-related routes will be prefixed with '/auth'
 
 // Example of a protected route
 app.get("/api/profile", authMiddleware.authenticateUser, (req, res) => {
@@ -63,6 +76,10 @@ app.get("/api/profile", authMiddleware.authenticateUser, (req, res) => {
 
   res.json({ status: "success", message: "Protected route accessed", user: userData });
 });
+app.use(function (req, res, next) {
+  req.session.nowInMinutes = Math.floor(Date.now() / 60e3)
+  next()
+})
 
 
 // Start the server
