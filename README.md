@@ -34,8 +34,6 @@ npm install
 ```
 4. Configure the environment variables:
 ## Configure the Environment Variables
-# Environment Variables for Node.js Authentication API
-
 This document outlines the environment variables used in the Node.js Authentication API for configuring the server, database, email service, security, and other settings. The `.env` file is used to store these variables, and it should be kept secure and not committed to version control systems.
 
 ## Server Configuration:
