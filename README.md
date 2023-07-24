@@ -149,8 +149,28 @@ Data Required:
    }
 ```
 - `GET /users/password-reset/:token`: Verify the password reset token and allow the user to set a new password.
+- `GET /users/verify/:token`: Verify Account (Requires Token)
 - `GET /users/profile/`: Access the user dashboard (requires authentication).
-- `PUT /users/update-profile`: Update the profile (requires Authentication) DATA: 
+- `PUT /users/update-profile`: Update the profile (requires Authentication)
+```bash
+Data
+{
+    "username": "alis",
+        "dateOfBirth": "1990-02-11T00:00:00.000Z",
+        "fullName": "Alish Bista",
+        "phoneNumber": "9807999753",
+        "bio": "Nodejs Developer",
+        "email": "bistace321@gmail.com"
+}
+```
+- `PUT /users/profile/change-password`: Change User password (requires Authorization)
+```bash
+DATA
+{
+   "currentPassword" : "password321", 
+   "newPassword" : "Password!123"
+}
+```
 For detailed information on each endpoint, including request and response examples, refer to the API documentation.
 
 ## Documentation
