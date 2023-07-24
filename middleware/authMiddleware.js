@@ -7,8 +7,9 @@ const logger = require("../utils/logger")
 // Authentication middleware
 exports.authenticateUser = (req, res, next) => {
   // Get the token from the request headers or other sources (e.g., query parameter, cookies)
-  const token = req.header("Authorization");
-  console.log(req.cookies)
+  // const token = req.header("Authorization");
+  const token = req.cookies.token
+  console.log(token)
   // Check if a token exists in the request
   if (!token) {
     logger.error("Authentication failed: No token provided");
