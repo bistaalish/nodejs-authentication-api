@@ -34,7 +34,70 @@ npm install
 ```
 4. Configure the environment variables:
 ## Configure the Environment Variables
+# Environment Variables for Node.js Authentication API
 
+This document outlines the environment variables used in the Node.js Authentication API for configuring the server, database, email service, security, and other settings. The `.env` file is used to store these variables, and it should be kept secure and not committed to version control systems.
+
+## Server Configuration:
+
+1. `PORT`: The port on which the Node.js server will listen for incoming HTTP requests. Default is set to 8080.
+   - Example: `PORT=8080`
+
+2. `NODE_ENV`: The environment mode in which the server is running. Use "development", "production", or "test" based on the deployment environment.
+   - Example: `NODE_ENV=development`
+
+## MongoDB Configuration:
+
+`MONGODB_URI`: The URI to connect to the MongoDB database. Replace the `<username>`, `<password>`, and `<host>` with your MongoDB credentials and host.
+   - Example: `MONGODB_URI=mongodb://<username>:<password>@<host>:27017/<database-name>`
+
+ `DB`: The name of the MongoDB database to use for the Node.js Authentication API.
+   - Example: `DB=Authentication`
+
+## JWT Secret Key:
+
+ `JWT_SECRET`: The secret key used for signing JSON Web Tokens (JWT) to authenticate users. Replace this with a secure and unique secret key.
+   - Example: `JWT_SECRET=mySecretKey123`
+
+## Email Service Configuration:
+
+6. `EMAIL_SERVICE`: The email service provider used to send verification and password reset emails. (e.g., "smtp")
+   - Example: `EMAIL_SERVICE=smtp`
+
+7. `EMAIL_HOST`: The host of the email service provider. (e.g., "smtp.mailtrap.io")
+   - Example: `EMAIL_HOST=smtp.mailtrap.io`
+
+8. `EMAIL_PORT`: The port number used by the email service provider. (e.g., 2525)
+   - Example: `EMAIL_PORT=2525`
+
+9. `EMAIL_USERNAME`: The username or API key required for authenticating with the email service provider.
+   - Example: `EMAIL_USERNAME=your-email-username`
+
+10. `EMAIL_PASSWORD`: The password or API key required for authenticating with the email service provider.
+    - Example: `EMAIL_PASSWORD=your-email-password`
+
+11. `EMAIL_FROM`: The email address used as the "from" address for sending emails.
+    - Example: `EMAIL_FROM=support@example.com`
+
+12. `DOMAIN`: The domain of your application, used for constructing verification and reset password links.
+    - Example: `DOMAIN=example.com`
+
+## CORS Configuration:
+
+13. `ALLOWED_ORIGINS`: A comma-separated list of allowed origins for Cross-Origin Resource Sharing (CORS). Specify the domains or URLs from which the frontend can make requests to this API. Note that this is a security feature to prevent unauthorized access to your API.
+    - Example: `ALLOWED_ORIGINS=http://example.com,http://localhost:3000`
+
+## Logging Configuration:
+
+14. `LOG_DIR`: The directory where log files will be stored. Specify the path relative to the root of the application. Logs are useful for tracking errors and debugging.
+    - Example: `LOG_DIR=./logs`
+
+## Cookies:
+
+15. `COOKIE_SECRET`: A secret key used to sign cookies and prevent tampering. Replace this with a secure and unique secret key.
+    - Example: `COOKIE_SECRET=myCookieSecret123`
+
+Please ensure that you replace the placeholder values with your actual credentials and secrets for the environment variables. Keep this file secure and avoid exposing sensitive information. Additionally, you may add other environment variables as needed for your specific project.
 To properly configure the environment variables for the Authentication and Authorization System, follow these steps:
 
 1. Locate the `.env.example` file in the root directory of the project.
@@ -46,14 +109,6 @@ To properly configure the environment variables for the Authentication and Autho
 4. Paste the contents into the newly created `.env` file.
 
 5. Replace the placeholder values with your actual configuration details. Below are some important variables to set:
-
-   - `DATABASE_URL`: Set the URL or connection string for your database (e.g., MongoDB, MySQL).
-   - `SESSION_SECRET`: Provide a strong and unique secret for session management.
-   - `EMAIL_SERVICE`: Set the email service provider to be used for sending emails (e.g., Gmail, SendGrid).
-   - `EMAIL_USER`: Provide the email address for the sender's account.
-   - `EMAIL_PASSWORD`: Set the password for the sender's email account.
-   - `JWT_SECRET`: (Optional) If you choose to use JSON Web Tokens (JWT) for authentication, set a secret for signing the tokens.
-
 6. Save the `.env` file with the updated configuration.
 
 ## Usage
