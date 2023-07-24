@@ -3,6 +3,7 @@ require("dotenv").config()
 module.exports = {
     // Other configurations...
     JWT_SECRET: process.env.JWT_SECRET,
+    LOG_DIR: process.env.LOG_DIR,
     domain: process.env.DOAMIN,
     email : process.env.EMAIL_FROM,
     // MongoDB configuration

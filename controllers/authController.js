@@ -5,14 +5,18 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 const User = require("../models/user");
 const sendEmail = require('../utils/sendEmail');
+const logger = require("../utils/logger")
 const Joi = require("joi");
 const generateVerificationToken = require("../utils/generateToken");
 
 // Data validation schema for user registration
 const registrationSchema = Joi.object({
-  username: Joi.string().alphanum().min(3).max(30).required(),
+  username: Joi.string().min(3).max(30).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
+  phoneNumber: Joi.string().length(10).pattern(/^[0-9]{10}$/).required(),
+  fullName: Joi.string().max(100).required(),
+  dateOfBirth: Joi.date(),
 });
 
 // Data validation schema for user login
@@ -25,25 +29,24 @@ const changePasswordRegistrationSchema = Joi.object({
   newPassword: Joi.string().min(8).required(),
 });
 
-const updateProfileSchema = Joi.object({
-  username: Joi.string().alphanum().min(3).max(30).required(),
-  email: Joi.string().email().required(),
-});
 
 
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
+    //  Input validation for registration
     const { error } = registrationSchema.validate(req.body);
     if (error) {
       // If validation fails, return an error response
+      logger.error("User registration validation error:", error.details[0].message);  
       return res.status(400).json({ status: "error", message: error.details[0].message });
     }
-    const { username, email, password } = req.body;
+    const { username, email, password,dateOfBirth,fullName,phoneNumber   } = req.body;
 
     // Check if the username or email already exists in the database
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
+      logger.error("User registration failed: Username or email already exists");
       return res.status(409).json({ message: "Username or email already exists" });
     }
 
@@ -57,19 +60,27 @@ exports.registerUser = async (req, res) => {
     const newUser = new User({
       username,
       email,
+      dateOfBirth,
+      fullName,
+      phoneNumber,
       password: hashedPassword,
       verificationToken,
     });
 
     await newUser.save();
      // Send the account verification email to the user's registered email address
+    // Constructing email body
      const subject = "Account Verification";
      const clientEmail = email;
-     const body =`<p>Hello ${newUser.username},</p><p>Please click on the following link to verify your email:</p><a href=http://localhost:${process.env.PORT}/auth/verify/${verificationToken}>${verificationToken}</a>`
+     const body =`<p>Hello ${newUser.username},</p><p>Please click on the following link to verify your email:</p><a href=http://localhost:${process.env.PORT}/users/verify/${verificationToken}>${verificationToken}</a>`
+    //  Send email using sendEMail
      sendEmail(subject,clientEmail,body);
-     // Return a success response
+     // Store into log andReturn a success response
+     logger.info(`User registered successfully: Username - ${newUser.username}, Email - ${newUser.email}`);
      res.status(201).json({ status: "success", message: "User registered. Please verify your email." });
    } catch (error) {
+    //  Storing the error in the logs 
+     logger.error("Error registering user:", error.message);
      console.error("Error registering user:", error.message);
      res.status(500).json({ status: "error", message: "Internal server error" });
    }
@@ -82,6 +93,7 @@ exports.loginUser = async (req, res) => {
     const { error } = loginSchema.validate(req.body);
     if (error) {
       // If validation fails, return an error response
+      logger.error("User login validation error:", error.details[0].message);
       return res.status(400).json({ status: "error", message: error.details[0].message });
     }
 
@@ -94,6 +106,7 @@ exports.loginUser = async (req, res) => {
 
     // If the user is not found or the password doesn't match, return an error
     if (!user || !(await bcrypt.compare(password, user.password))) {
+      logger.error("User login failed: Invalid credentials");
       return res.status(401).json({ status: "error", message: "Invalid credentials" });
     }
 
@@ -103,45 +116,15 @@ exports.loginUser = async (req, res) => {
     });
 
     // Return the token in the response
+    logger.info(`User login successful: Username - ${user.username}, Email - ${user.email}`);
     res.status(200).json({ status: "success", message: "Login successful", token });
   } catch (error) {
+    logger.error("Error during login:", error.message);
     console.error("Error during login:", error.message);
     res.status(500).json({ status: "error", message: "Internal server error" });
   }
 };
 
-// Update user profile information
-exports.updateProfile = async (req, res) => {
-  try {
-    const { error } = updateProfileSchema.validate(req.body);
-    if (error) {
-      // If validation fails, return an error response
-      return res.status(400).json({ status: "error", message: error.details[0].message });
-    }
-    // Get the updated profile information from the request body
-    const { username, email, /* other profile fields */ } = req.body;
-    const uname = req.user.username;
-    // Get the authenticated user from the auth middleware
-      // Find the user with the provided verification token
-      const user = await User.findOne({ "username": uname });
-
-      if (!user) {
-        // If the user with the token is not found, handle the error
-        return res.status(404).json({ message: "User not found" });
-      }
-  //   // Update the user's profile information
-    user.username = username;
-    user.email = email;
-    /* Update other profile fields */
-
-    await user.save();
-
-    res.status(200).json({ message: "Profile updated successfully" });
-  } catch (error) {
-    console.error("Error updating profile:", error.message);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
 
 // Change user password
 exports.changePassword = async (req, res) => {
@@ -149,6 +132,7 @@ exports.changePassword = async (req, res) => {
     const { error } = changePasswordRegistrationSchema.validate(req.body);
     if (error) {
       // If validation fails, return an error response
+      logger.error("Change password validation error:", error.details[0].message);
       return res.status(400).json({ status: "error", message: error.details[0].message });
     }
     // Get the current password and new password from the request body
@@ -158,6 +142,7 @@ exports.changePassword = async (req, res) => {
     const user = await User.findOne({ uname });
 
     if (!user) {
+      logger.error("Invalid or expired password reset token:", error.details[0].message);
       return res.status(400).json({ message: "Invalid or expired password reset token" });
     }
 
@@ -175,8 +160,10 @@ exports.changePassword = async (req, res) => {
 
     await user.save();
 
+    logger.info(`Password changed successfully: Username - ${user.username}`);
     res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
+    logger.error("Error changing password:", error.message);
     console.error("Error changing password:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
@@ -191,14 +178,16 @@ exports.deleteAccount = async (req, res) => {
     // Check if the user exists in the database
     const existingUser = await User.findOne({ username: user.username });
     if (!existingUser) {
+      logger.error("User account deletion failed: User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
     // Delete the user's account
     await User.deleteOne({ username: user.username });
-
+    logger.info(`User account deleted: Username - ${user.username}`);
     res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
+    logger.error("Error deleting account:", error.message);
     console.error("Error deleting account:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
